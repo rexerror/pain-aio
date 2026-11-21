@@ -1,0 +1,7 @@
+﻿.pain-aio-data/
+chrome_user_data_phoma/
+downloads/
+grok-images/
+veo3-images/
+*.zip
+!PAIN-AiO-Runtime/PAIN-AiO-App.zip

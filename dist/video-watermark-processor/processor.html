@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video watermark processor</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      body {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="tabBatchBtn" type="button"></button>
+    <button id="tabSingleBtn" type="button"></button>
+    <div id="batchView"></div>
+    <div id="singleView"></div>
+    <span id="queueCountBadge">0</span>
+    <span id="statTotal">0</span>
+    <span id="statProcessing">0</span>
+    <span id="statCompleted">0</span>
+    <span id="statOverallProgress">0%</span>
+    <button id="startAllBtn" type="button"></button>
+    <button id="pauseAllBtn" type="button"></button>
+    <button id="downloadAllZipBtn" type="button"></button>
+    <button id="clearCompletedBtn" type="button"></button>
+    <button id="clearAllBtn" type="button"></button>
+    <div id="queueList"><div id="queueEmpty"></div></div>
+    <select id="concurrencySelect">
+      <option value="1" selected>1</option>
+    </select>
+    <span id="concurrencyLabel">1</span>
+    <select id="batchDenoiseBackend">
+      <option value="allenk-fdncnn-browser-spike" selected>FDnCNN</option>
+    </select>
+    <select id="batchBitrate">
+      <option value="12" selected>12</option>
+    </select>
+    <button id="selectOutDirBtn" type="button"></button>
+    <button id="openFolderBtn" type="button"></button>
+    <button id="clearOutDirBtn" type="button"></button>
+    <span id="selectedOutDirLabel"></span>
+    <input id="autoDownloadCheck" type="checkbox" />
+    <input id="batchAdaptiveAlphaCheck" type="checkbox" />
+    <input id="batchAllowLowConfidenceCheck" type="checkbox" />
+    <div id="dropzone"></div>
+    <input id="fileInput" type="file" accept="video/mp4" />
+    <div id="comparePlayer"></div>
+    <span id="afterBadge" hidden></span>
+    <button id="playPauseBtn" type="button" data-playing="false"></button>
+    <input id="scrubber" type="range" min="0" max="1000" value="0" />
+    <span id="timeLabel"></span>
+    <video id="originalVideo" playsinline preload="metadata"></video>
+    <video id="processedVideo" playsinline preload="metadata" muted></video>
+    <div id="originalEmpty"></div>
+    <div id="processedEmpty"></div>
+    <div id="metadata"></div>
+    <div id="detection"></div>
+    <div id="progressBar" style="width: 0%"></div>
+    <span id="progressText"></span>
+    <div id="status" data-tone="info"></div>
+    <input id="alphaGain" type="range" min="0.25" max="1.35" step="0.05" value="1" />
+    <span id="alphaGainValue">1.00</span>
+    <input id="adaptiveAlpha" type="checkbox" />
+    <input id="highQualityCleanup" type="checkbox" />
+    <select id="denoiseBackend">
+      <option value="allenk-fdncnn-browser-spike" selected>FDnCNN</option>
+    </select>
+    <input id="edgeDenoiseStrength" type="range" min="0" max="1" step="0.05" value="0.25" />
+    <span id="edgeDenoiseStrengthValue">0.25</span>
+    <input id="residualCleanup" type="range" min="0" max="1.8" step="0.05" value="1.5" />
+    <span id="residualCleanupValue">1.50</span>
+    <input id="videoBitrateMbps" type="number" min="1" max="80" step="0.5" value="12" />
+    <input id="sampleCount" type="number" min="4" max="24" step="1" value="12" />
+    <input id="allowLowConfidence" type="checkbox" />
+    <div id="autoPresetSummary"></div>
+    <button id="processBtn" type="button"></button>
+    <button id="detectBtn" type="button"></button>
+    <a id="downloadBtn" aria-disabled="true"></a>
+    <button id="resetBtn" type="button"></button>
+    <button id="relocatedReviewPresetBtn" type="button"></button>
+    <script src="./video-app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+MOSS Audio Tokenizer
+Copyright 2026 OpenMOSS and the HuggingFace Inc. team. All rights reserved.
+Compiled from revision 6aa02b01e445cc585582cf0ba480bc3ea6c8dd68.
+https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano

@@ -1,0 +1,9 @@
+Phoma uses unmodified FFmpeg and FFprobe command-line executables in separate processes.
+Pinned binary distribution: https://github.com/eugeneware/ffmpeg-static/releases/tag/b6.1.1
+Upstream source: https://github.com/FFmpeg/FFmpeg/tree/n6.1.1
+Build configuration is printed by ffmpeg -version. Distribution build information:
+https://github.com/eugeneware/ffmpeg-static/tree/b6.1.1
+The bundled LICENSE.txt and README.txt are the distribution's original notices.
+FFmpeg contains LGPL and optional GPL components; the executables are provided under
+the licenses corresponding to their configuration. See COPYING.GPLv3 and COPYING.LGPLv2.1.
+These notices apply to the separately distributed media tools, not Phoma's own source.

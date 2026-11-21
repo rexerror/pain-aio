@@ -1,0 +1,13 @@
+Video watermark processor
+
+The processor logic is derived from @pilio/gemini-watermark-remover
+Copyright (c) 2026 GargantuaX
+https://github.com/GargantuaX/gemini-watermark-remover
+Released under the MIT License. The original license banner is retained in video-app.js.
+
+Bundled runtime components retain their upstream notices in video-app.js, including:
+- ONNX Runtime Web (MIT License)
+- Mediabunny (Mozilla Public License 2.0)
+- TensorFlow-derived components (Apache License 2.0)
+
+Only the video processing runtime, ONNX models, and required WASM files are included.

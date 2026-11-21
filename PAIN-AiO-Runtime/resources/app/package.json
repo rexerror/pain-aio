@@ -1,0 +1,6 @@
+{
+  "name": "phoma",
+  "productName": "PAIN-AiO",
+  "version": "1.7.4",
+  "main": "bootstrap.cjs"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "pain-aio",
+  "version": "1.7.4",
+  "description": "PAIN-AiO",
+  "author": "PAIN-AiO",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "dependencies": {
+    "bytenode": "2.1.0",
+    "fingerprint-generator": "2.1.89",
+    "fingerprint-injector": "2.1.89",
+    "electron-updater": "^6.8.3",
+    "node-machine-id": "^1.1.12",
+    "express": "^5.2.1",
+    "puppeteer-core": "^24.40.0",
+    "@jsr/becauseyes__urbanvpn-api-wrapper": "file:vendor/jsr-becauseyes__urbanvpn-api-wrapper-1.0.4.tgz",
+    "multer": "^2.1.1",
+    "@noble/hashes": "1.8.0",
+    "archiver": "^8.0.0",
+    "msedge-tts": "file:vendor/msedge-tts-2.1.1.tgz"
+  }
+}
