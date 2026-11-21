@@ -2455,10 +2455,7 @@ class MusePainEngine {
             prompt: it.prompt || ""
           });
           const pref = String(sceneNumber).padStart(3, "0");
-          const hit =
-            mode === "t2v"
-              ? byExact.get(expectedName.toLowerCase())
-              : byExact.get(expectedName.toLowerCase()) || byPrefix.get(pref);
+          const hit = byExact.get(expectedName.toLowerCase()) || byPrefix.get(pref);
           if (hit) {
             matched[String(idx)] = {
               filename: hit.filename,
