@@ -487,6 +487,9 @@ function registerIpcHandlers() {
 
   ipcMain.handle("app:update-install", async () => {
     try {
+      try {
+        await browserServerHandle?.close?.();
+      } catch {}
       const launcherExe = path.join(APP_ROOT, "PAIN-AiO.exe");
       if (fs.existsSync(launcherExe)) {
         spawn(launcherExe, [], {
@@ -499,7 +502,7 @@ function registerIpcHandlers() {
       }
       setTimeout(() => {
         app.exit(0);
-      }, 250);
+      }, 150);
       return { ok: true };
     } catch (err) {
       return { ok: false, error: err.message };
