@@ -46,7 +46,7 @@ var _museSessionsByProject = new Map();
 function _normalizeLocalApiUrl(u) {
   if (!u || typeof u !== 'string') return u;
   if (/^data:|^blob:/i.test(u)) return u;
-  const rel = u.replace(/^https?://(?:127.0.0.1|localhost):d+/i, '');
+  const rel = u.replace(/^https?:\/\/(?:127\.0\.0\.1|localhost):\d+/i, '');
   if (rel.startsWith('/')) {
     return _0x394185(rel);
   }
