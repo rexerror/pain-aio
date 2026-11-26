@@ -2430,6 +2430,82 @@ class MusePainEngine {
       }
     });
 
+    // Ultra-lightweight (~15KB) JPEG thumbnail extractor & cache for completed videos
+    // Prevents Chromium Renderer from mounting 200+ 4K <video> hardware decoders (which causes 4GB OOM crashes)!
+    let activeThumbJobs = 0;
+    const thumbQueue = [];
+    const inFlightThumbs = new Map();
+    const runNextThumbJob = () => {
+      while (activeThumbJobs < 2 && thumbQueue.length > 0) {
+        const job = thumbQueue.shift();
+        activeThumbJobs++;
+        job().finally(() => {
+          activeThumbJobs--;
+          runNextThumbJob();
+        });
+      }
+    };
+
+    app.get("/__projects/:id/muse-video-thumb", async (req, res) => {
+      const projectId = String(req.params.id || "");
+      const rawFile = path.basename(String(req.query.file || "").trim());
+      if (!projectId || !rawFile || !/\.mp4$/i.test(rawFile)) {
+        return res.status(404).end();
+      }
+      try {
+        const defaultDir = getProjectVideosDir(projectId);
+        const activeSaveDir = this.getActiveSaveDir(projectId, defaultDir);
+        const p1 = path.join(defaultDir, rawFile);
+        const p2 = path.join(activeSaveDir, rawFile);
+        const videoPath = fs.existsSync(p1) ? p1 : fs.existsSync(p2) ? p2 : null;
+        if (!videoPath) return res.status(404).end();
+
+        const thumbsDir = path.join(path.dirname(defaultDir), ".meta", "thumbs");
+        fs.mkdirSync(thumbsDir, { recursive: true });
+        const thumbPath = path.join(thumbsDir, `${rawFile}.jpg`);
+
+        if (fs.existsSync(thumbPath) && fs.statSync(thumbPath).size > 512) {
+          res.setHeader("Content-Type", "image/jpeg");
+          res.setHeader("Cache-Control", "public, max-age=86400");
+          return fs.createReadStream(thumbPath).pipe(res);
+        }
+
+        if (!inFlightThumbs.has(thumbPath)) {
+          const p = new Promise((resolve) => {
+            thumbQueue.push(
+              () =>
+                new Promise((done) => {
+                  const ffmpegBin = detectFfmpegPath();
+                  execFile(
+                    ffmpegBin,
+                    ["-y", "-ss", "0.05", "-i", videoPath, "-frames:v", "1", "-vf", "scale=480:-2", "-q:v", "5", thumbPath],
+                    { timeout: 15000, windowsHide: true },
+                    () => {
+                      resolve();
+                      done();
+                    }
+                  );
+                })
+            );
+            runNextThumbJob();
+          }).finally(() => {
+            inFlightThumbs.delete(thumbPath);
+          });
+          inFlightThumbs.set(thumbPath, p);
+        }
+
+        await inFlightThumbs.get(thumbPath);
+        if (fs.existsSync(thumbPath) && fs.statSync(thumbPath).size > 512) {
+          res.setHeader("Content-Type", "image/jpeg");
+          res.setHeader("Cache-Control", "public, max-age=86400");
+          return fs.createReadStream(thumbPath).pipe(res);
+        }
+        return res.status(404).end();
+      } catch {
+        return res.status(404).end();
+      }
+    });
+
     app.post("/__projects/:id/muse-reconcile", (req, res) => {
       const projectId = String(req.params.id);
       const defaultDir = getProjectVideosDir(projectId);
