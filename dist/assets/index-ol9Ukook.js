@@ -97,6 +97,7 @@ function _getOrCreateMuseSession(projectId) {
       i2vSuffix: saved?.i2vSuffix ?? '',
       i2vStripNum: saved?.i2vStripNum !== false,
       i2vAspect: saved?.i2vAspect || '16:9',
+      i2vResolution: saved?.i2vResolution || '720p',
       i2vDuration: Number(saved?.i2vDuration) || 10,
       i2vDelay: Number(saved?.i2vDelay) || 0,
       i2vItems: _normalizeSavedMuseItems(saved?.i2vItems),
@@ -105,6 +106,7 @@ function _getOrCreateMuseSession(projectId) {
       t2vSuffix: saved?.t2vSuffix ?? '',
       t2vStripNum: saved?.t2vStripNum !== false,
       t2vAspect: saved?.t2vAspect || '16:9',
+      t2vResolution: saved?.t2vResolution || '720p',
       t2vDuration: Number(saved?.t2vDuration) || 10,
       t2vDelay: Number(saved?.t2vDelay) || 0,
       t2vItems: _normalizeSavedMuseItems(saved?.t2vItems),
@@ -137,6 +139,7 @@ function _getOrCreateMuseSession(projectId) {
           i2vSuffix: s.i2vSuffix,
           i2vStripNum: s.i2vStripNum,
           i2vAspect: s.i2vAspect,
+          i2vResolution: s.i2vResolution,
           i2vDuration: s.i2vDuration,
           i2vDelay: s.i2vDelay,
           i2vItems: lightI2v,
@@ -145,6 +148,7 @@ function _getOrCreateMuseSession(projectId) {
           t2vSuffix: s.t2vSuffix,
           t2vStripNum: s.t2vStripNum,
           t2vAspect: s.t2vAspect,
+          t2vResolution: s.t2vResolution,
           t2vDuration: s.t2vDuration,
           t2vDelay: s.t2vDelay,
           t2vItems: s.t2vItems,
@@ -327,10 +331,12 @@ async function _dispatchMuseTaskAndWait(session, idx, targetMode) {
     activePool.length > 0 ? activePool[(idx + nextRetryCount) % activePool.length] : null;
   const assignedAccName = assignedAcc?.name || 'Muse-Pain';
 
+  const selectedRes = (targetMode === 'i2v' ? session.state.i2vResolution : session.state.t2vResolution) || '720p';
+  const resDirective = 'Tạo video ' + selectedRes;
   const pre = (targetMode === 'i2v' ? session.state.i2vPrefix : session.state.t2vPrefix).trim();
   const suf = (targetMode === 'i2v' ? session.state.i2vSuffix : session.state.t2vSuffix).trim();
-  const core = String(item.prompt || '').trim() || 'Cinematic smooth motion, high quality 4K';
-  const finalPrompt = [pre, core, suf].filter(Boolean).join(', ');
+  const core = String(item.prompt || '').trim() || 'Cinematic smooth motion, high quality';
+  const finalPrompt = [resDirective, pre, core, suf].filter(Boolean).join(', ');
   const aspectRatio = targetMode === 'i2v' ? session.state.i2vAspect : session.state.t2vAspect;
   const duration = targetMode === 'i2v' ? session.state.i2vDuration : session.state.t2vDuration;
 
@@ -359,6 +365,7 @@ async function _dispatchMuseTaskAndWait(session, idx, targetMode) {
     prompt: finalPrompt,
     rawPrompt: item.prompt || finalPrompt,
     aspectRatio,
+    resolution: selectedRes,
     duration,
     veo3Duration: duration,
     generationMode: targetMode === 'i2v' ? 'start_end' : 'text',
@@ -499,6 +506,7 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
     i2vSuffix,
     i2vStripNum,
     i2vAspect,
+    i2vResolution,
     i2vDuration,
     i2vDelay,
     i2vItems,
@@ -507,6 +515,7 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
     t2vSuffix,
     t2vStripNum,
     t2vAspect,
+    t2vResolution,
     t2vDuration,
     t2vDelay,
     t2vItems,
@@ -1838,7 +1847,7 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
             ),
             h(
               'div',
-              { className: 'grid grid-cols-3 gap-2' },
+              { className: 'grid grid-cols-2 gap-2' },
               h(
                 'div',
                 null,
@@ -1855,6 +1864,28 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
                   },
                   h('option', { value: '16:9' }, '16:9 — Ngang'),
                   h('option', { value: '9:16' }, '9:16 — Dọc')
+                )
+              ),
+              h(
+                'div',
+                null,
+                h('label', { className: 'block text-[10px] text-muted-foreground mb-1 font-semibold' }, 'Độ phân giải Video'),
+                h(
+                  'select',
+                  {
+                    disabled: isBusy,
+                    value: (mode === 'i2v' ? i2vResolution : t2vResolution) || '720p',
+                    onChange: (e) =>
+                      session.setState(
+                        mode === 'i2v' ? { i2vResolution: e.target.value } : { t2vResolution: e.target.value }
+                      ),
+                    className:
+                      'w-full rounded-control border border-border bg-background px-2 py-1.5 text-[12px] font-semibold focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed'
+                  },
+                  h('option', { value: '720p' }, '720p — Nhẹ & Nhanh'),
+                  h('option', { value: '1080p' }, '1080p — Full HD'),
+                  h('option', { value: '2K' }, '2K — QHD (1440p)'),
+                  h('option', { value: '4K' }, '4K — Ultra HD (2160p)')
                 )
               ),
               h(
@@ -1895,6 +1926,27 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
                   className:
                     'w-full rounded-control border border-border bg-background px-2 py-1.5 text-[12px] font-mono focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed'
                 })
+              )
+            ),
+            h(
+              'div',
+              {
+                className:
+                  'rounded-control border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-mono text-emerald-400 flex items-center justify-between'
+              },
+              h(
+                'span',
+                null,
+                '✓ Tự động chèn đầu Prompt: "Tạo video ' +
+                  ((mode === 'i2v' ? i2vResolution : t2vResolution) || '720p') +
+                  ', ..."'
+              ),
+              h(
+                'span',
+                { className: 'font-bold' },
+                ((mode === 'i2v' ? i2vResolution : t2vResolution) || '720p') === '720p'
+                  ? 'Chế độ Nhẹ Máy (Không lag)'
+                  : 'Chuẩn ' + ((mode === 'i2v' ? i2vResolution : t2vResolution) || '720p')
               )
             )
           ),
@@ -2519,19 +2571,9 @@ function MusePainStudioWorkspace({ projectId, projectName, automation, projectIm
                       }));
                     const resolvedVideoUrl = item.videoUrl ? _normalizeLocalApiUrl(item.videoUrl) : null;
                     const resolvedPreviewUrl = item.previewUrl ? _normalizeLocalApiUrl(item.previewUrl) : null;
-                    const fullPromptText = [
-                      mode === 'i2v' ? i2vPrefix : t2vPrefix,
-                      item.prompt || '',
-                      mode === 'i2v' ? i2vSuffix : t2vSuffix
-                    ].join(' ');
-                    const promptRes = /(?:4k|2160p|uhd|3840s*[x×*]s*2160|2160s*[x×*]s*3840)/i.test(fullPromptText)
-                      ? '4K'
-                      : /(?:2k|1440p|qhd|2560s*[x×*]s*1440|1440s*[x×*]s*2560)/i.test(fullPromptText)
-                        ? '2K'
-                        : /(?:1080p|fulls*hd|fhd|1920s*[x×*]s*1080|1080s*[x×*]s*1920)/i.test(fullPromptText)
-                          ? '1080p'
-                          : null;
-                    const displayResolution = item.actualResolution || promptRes;
+                    const selectedResForMode = (mode === 'i2v' ? i2vResolution : t2vResolution) || '720p';
+                    const displayResolution =
+                      isDone && item.actualResolution ? item.actualResolution : selectedResForMode;
 
                     return h(
                       'div',
