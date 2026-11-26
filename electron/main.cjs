@@ -35,6 +35,10 @@ const USER_DATA_DIR = process.env.PHOMA_TEST_USER_DATA_DIR || path.join(APP_ROOT
 fs.mkdirSync(USER_DATA_DIR, { recursive: true });
 app.setPath("userData", USER_DATA_DIR);
 app.setName("PAIN-AiO");
+try {
+  app.commandLine.appendSwitch("js-flags", "--max-old-space-size=4096");
+  app.commandLine.appendSwitch("disable-renderer-backgrounding");
+} catch {}
 if (process.platform === "win32") {
   app.setAppUserModelId("com.pain.aio");
 }
@@ -631,6 +635,13 @@ async function bootstrap() {
   });
   mainWindow.webContents.on("render-process-gone", (_e, details) => {
     writeDebug(`[Renderer gone] ${JSON.stringify(details)}`);
+    if (details && details.reason !== "clean-exit" && mainWindow && !mainWindow.isDestroyed()) {
+      setTimeout(() => {
+        try {
+          if (mainWindow && !mainWindow.isDestroyed()) mainWindow.reload();
+        } catch {}
+      }, 600);
+    }
   });
 
   // Clear any legacy offline dummy token so the real Cloud Login + 1-Device HWID verification runs
